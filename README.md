@@ -19,7 +19,30 @@ Notre application utilise un système de salon multijoueur identifié par un **c
 - `assets/products/` : Dossier contenant l'ensemble des photos HD des produits.
 - `css/devine-le-prix.css` : Feuille de style du jeu avec variables CSS (Design Tokens).
 - `js/audio-manager.js` : Synthétiseur d'effets sonores Web Audio API (sans fichiers MP3).
+- `_TOOLS/` : Scripts Node.js d'automatisation pour générer et télécharger de nouveaux visuels de produits.
 - `index.html` : Démo de référence du composant d'affichage.
+
+---
+
+## 🛠️ OUTILS ET SCRIPTS D'AUTOMATISATION (`_TOOLS/`)
+
+Le dossier `_TOOLS/` contient des utilitaires Node.js permettant d'étendre facilement la base de produits :
+
+1. **`_TOOLS/fetch_images.js`** :
+   - **Rôle** : Script d'acquisition automatique d'images HD via l'API SerpApi (Google Images / Shopping).
+   - **Fonctionnement** : Lit la liste des produits avec leurs requêtes de recherche et télécharge directement les images dans `assets/products/`.
+   - **Utilisation** :
+     ```bash
+     node _TOOLS/fetch_images.js
+     ```
+   - **Ajout de nouveaux produits** : Ajouter simplement un objet `{ name: "Nom", query: "Recherche Google", price: 100 }` dans le tableau `products` du script.
+
+2. **`_TOOLS/fetch_missing.js`** :
+   - **Rôle** : Script de secours ciblé pour récupérer des fonds et visuels haute résolution specifiques.
+   - **Utilisation** :
+     ```bash
+     node _TOOLS/fetch_missing.js
+     ```
 
 ---
 
