@@ -1,0 +1,208 @@
+/* devine-le-prix.css - Style modulaire et personnalisable par Design Tokens */
+
+:root {
+    /* Design Tokens - Override ces variables pour adapter la DA */
+    --dlp-font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --dlp-primary-color: #6366f1;
+    --dlp-primary-hover: #4f46e5;
+    --dlp-accent-color: #10b981;
+    --dlp-bg-main: #0f172a;
+    --dlp-bg-card: rgba(30, 41, 59, 0.7);
+    --dlp-border-color: rgba(255, 255, 255, 0.1);
+    --dlp-text-color: #f8fafc;
+    --dlp-text-muted: #94a3b8;
+    --dlp-border-radius: 16px;
+    --dlp-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--dlp-font-family);
+    background-color: var(--dlp-bg-main);
+    color: var(--dlp-text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dlp-container {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* En-tête de salle avec Code à 4 caractères */
+.dlp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--dlp-bg-card);
+    border: 1px solid var(--dlp-border-color);
+    border-radius: var(--dlp-border-radius);
+    padding: 14px 24px;
+    box-shadow: var(--dlp-shadow);
+}
+
+.dlp-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.dlp-room-badge {
+    background: var(--dlp-primary-color);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    text-transform: uppercase;
+}
+
+/* Card Produit */
+.dlp-card {
+    background: var(--dlp-bg-card);
+    border: 1px solid var(--dlp-border-color);
+    border-radius: var(--dlp-border-radius);
+    padding: 24px;
+    box-shadow: var(--dlp-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.dlp-product-img-wrapper {
+    width: 100%;
+    max-width: 380px;
+    height: 260px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dlp-product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.dlp-product-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Barre de Timer */
+.dlp-timer-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dlp-timer-bar {
+    height: 100%;
+    background: var(--dlp-primary-color);
+    width: 100%;
+    transition: width 1s linear, background-color 0.3s;
+}
+
+.dlp-timer-bar.warning {
+    background: #ef4444;
+}
+
+/* Zone d'action & Saisie de prix */
+.dlp-actions-zone {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    max-width: 450px;
+}
+
+.dlp-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--dlp-border-color);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--dlp-text-color);
+    font-size: 1.1rem;
+    font-family: inherit;
+    outline: none;
+}
+
+.dlp-input:focus {
+    border-color: var(--dlp-primary-color);
+}
+
+.dlp-btn {
+    background: var(--dlp-primary-color);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    font-family: inherit;
+}
+
+.dlp-btn:hover {
+    background: var(--dlp-primary-hover);
+}
+
+.dlp-btn:active {
+    transform: scale(0.98);
+}
+
+.dlp-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Affichage du Prix Révélé */
+.dlp-price-reveal {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--dlp-accent-color);
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Liste des Scores & Propositions */
+.dlp-results-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.dlp-result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px 16px;
+    border-radius: 8px;
+}

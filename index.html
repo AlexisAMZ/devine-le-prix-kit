@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devine Le Prix - Kit d'Intégration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/devine-le-prix.css">
+</head>
+<body>
+
+    <div class="dlp-container">
+
+        <!-- En-tête avec Code de Salle à 4 caractères -->
+        <header class="dlp-header">
+            <h1 class="dlp-title">Devine Le Prix</h1>
+            <div class="dlp-room-badge" id="room-display">CODE: ABCD</div>
+        </header>
+
+        <!-- Carte Principale du Jeu -->
+        <main class="dlp-card" id="game-card">
+            
+            <!-- Informations de la Manche -->
+            <div style="display: flex; justify-content: space-between; width: 100%; color: var(--dlp-text-muted);">
+                <span id="round-display">Manche 0 / 5</span>
+                <span id="timer-text">⏱️ 20s</span>
+            </div>
+
+            <!-- Jauge de Timer -->
+            <div class="dlp-timer-container">
+                <div class="dlp-timer-bar" id="timer-bar"></div>
+            </div>
+
+            <!-- Image du Produit -->
+            <div class="dlp-product-img-wrapper">
+                <img id="product-image" src="" alt="Produit" class="dlp-product-img" style="display: none;">
+                <div id="product-placeholder" style="color: var(--dlp-text-muted);">Cliquez sur "Démarrer la Partie"</div>
+            </div>
+
+            <!-- Nom du Produit -->
+            <h2 class="dlp-product-title" id="product-title">Bienvenue dans le jeu</h2>
+
+            <!-- Prix Révélé (Masqué pendant la manche) -->
+            <div class="dlp-price-reveal" id="price-reveal" style="display: none;">0.00 €</div>
+
+            <!-- Zone de Saisie / Commandes -->
+            <div class="dlp-actions-zone" id="input-zone">
+                <input type="number" id="guess-input" class="dlp-input" placeholder="Entrez un prix (€)" step="0.01" disabled>
+                <button class="dlp-btn" id="btn-submit" disabled>Valider</button>
+            </div>
+
+            <!-- Boutons de Contrôle du Salon -->
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="dlp-btn" id="btn-start">Démarrer la Partie</button>
+                <button class="dlp-btn" id="btn-next" style="display: none; background: var(--dlp-accent-color);">Manche Suivante</button>
+            </div>
+
+            <!-- Liste des Résultats / Classement -->
+            <div class="dlp-results-list" id="results-list"></div>
+
+        </main>
+    </div>
+
+    <!-- Integration Scripts (Pure Vanilla / ES Modules) -->
+    <script type="module">
+        import { PRODUCTS_DATA } from './data/products.js';
+        import { DevineLePrixEngine } from './js/devine-le-prix-engine.js';
+        import { AudioManager } from './js/audio-manager.js';
+
+        // 1. Instancier le moteur de jeu avec un code de salle à 4 caractères
+        const audio = new AudioManager();
+        const engine = new DevineLePrixEngine({
+            roomCode: "4F9B", // Code de salle à 4 caractères
+            totalRounds: 5,
+            timerDuration: 20,
+            products: PRODUCTS_DATA
+        });
+
+        // 2. Références DOM
+        const roomDisplay = document.getElementById('room-display');
+        const roundDisplay = document.getElementById('round-display');
+        const timerText = document.getElementById('timer-text');
+        const timerBar = document.getElementById('timer-bar');
+        const productImg = document.getElementById('product-image');
+        const productPlaceholder = document.getElementById('product-placeholder');
+        const productTitle = document.getElementById('product-title');
+        const priceReveal = document.getElementById('price-reveal');
+        const guessInput = document.getElementById('guess-input');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnStart = document.getElementById('btn-start');
+        const btnNext = document.getElementById('btn-next');
+        const resultsList = document.getElementById('results-list');
+
+        // 3. Écouter les mises à jour d'état du moteur
+        engine.on('stateChange', (state) => {
+            roomDisplay.textContent = `CODE: ${state.roomCode}`;
+            roundDisplay.textContent = `Manche ${state.currentRound} / ${state.totalRounds}`;
+            timerText.textContent = `⏱️ ${state.timeRemaining}s`;
+
+            // Mettre à jour la barre de décompte
+            const pct = (state.timeRemaining / engine.timerDuration) * 100;
+            timerBar.style.width = `${pct}%`;
+            if (state.timeRemaining <= 5) {
+                timerBar.classList.add('warning');
+            } else {
+                timerBar.classList.remove('warning');
+            }
+
+            // Mettre à jour le produit
+            if (state.currentItem) {
+                productImg.src = state.currentItem.img;
+                productImg.style.display = 'block';
+                productPlaceholder.style.display = 'none';
+                productTitle.textContent = state.currentItem.name;
+            }
+
+            // Gérer les boutons et inputs
+            guessInput.disabled = !state.isRoundActive || state.isRevealed;
+            btnSubmit.disabled = !state.isRoundActive || state.isRevealed;
+
+            if (state.isRevealed) {
+                priceReveal.style.display = 'block';
+                priceReveal.textContent = `${state.currentItem.price.toFixed(2)} €`;
+                btnNext.style.display = 'block';
+            } else {
+                priceReveal.style.display = 'none';
+                btnNext.style.display = 'none';
+            }
+        });
+
+        engine.on('timerTick', () => {
+            audio.playTick();
+        });
+
+        engine.on('priceRevealed', (data) => {
+            audio.playSuccess();
+            resultsList.innerHTML = '<h3>Résultats de la Manche</h3>';
+            data.results.forEach(r => {
+                const item = document.createElement('div');
+                item.className = 'dlp-result-item';
+                item.innerHTML = `
+                    <span><strong>${r.playerName}</strong> : ${r.guess.toFixed(2)} €</span>
+                    <span>Écart: ${r.diff.toFixed(2)} € | <strong>+${r.points} pts</strong></span>
+                `;
+                resultsList.appendChild(item);
+            });
+        });
+
+        engine.on('gameOver', (state) => {
+            productTitle.textContent = "Partie Terminée !";
+            btnNext.style.display = 'none';
+            btnStart.style.display = 'block';
+            btnStart.textContent = "Recommencer la Partie";
+        });
+
+        // 4. Événements UI d'exemple
+        btnStart.addEventListener('click', () => {
+            resultsList.innerHTML = '';
+            btnStart.style.display = 'none';
+            engine.startGame();
+        });
+
+        btnNext.addEventListener('click', () => {
+            resultsList.innerHTML = '';
+            engine.nextRound();
+        });
+
+        btnSubmit.addEventListener('click', () => {
+            const val = guessInput.value;
+            if (val) {
+                engine.submitGuess('player_1', 'Joueur 1', val);
+                guessInput.value = '';
+                guessInput.disabled = true;
+                btnSubmit.disabled = true;
+            }
+        });
+    </script>
+</body>
+</html>
