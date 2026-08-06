@@ -1,170 +1,105 @@
-# 📦 Kit d'Intégration Autonome : Jeu "Devine Le Prix"
+# 🤖 INSTRUCTIONS D'INTÉGRATION IA : JEU "DEVINE LE PRIX"
 
-Ce kit contient le moteur de jeu, la base de données de produits, les visuels et le système de style pour le jeu **Devine Le Prix**. Il est 100% autonome, sans dépendances externes (pas de Twitch, pas de TMI.js, pas de SDK propriétaire), et est conçu pour s'intégrer directement dans un système de Quiz multijoueur existant basé sur des **codes de salon à 4 caractères** (ex: `ABCD` ou `4F9B`).
-
----
-
-## 🤖 Instructions Spécifiques pour l'IA d'Intégration
-
-> **Message destiné à l'Agent IA / Assistant qui intègre ce jeu dans l'application cible :**
-
-```
-CONTEXTE ET DIRECTIVES D'INTÉGRATION :
-1. Ce kit fournit une classe JS autonome 'DevineLePrixEngine' située dans `js/devine-le-prix-engine.js`.
-2. Ne modifie pas la logique interne du moteur sauf si nécessaire. Utilise l'API d'événements `engine.on(event, callback)` pour lier le jeu au backend/state de ton application.
-3. Code de Salle : Le moteur gère nativement le code de salon à 4 caractères via `roomCode` (passé au constructeur ou mis à jour via `engine.setRoomCode("ABCD")`).
-4. Connexion Réseau (WebSockets / Sockets) :
-   - Côté Serveur/Host : Instancie `DevineLePrixEngine`. Lors des soumissions de prix par les joueurs via ton réseau, appelle `engine.submitGuess(playerId, playerName, value)`.
-   - À chaque événement `engine.on('stateChange', state)`, réémets `state` aux clients de la room.
-5. Adaptation Visuelle (DA / UI) :
-   - N'écrase pas la structure HTML si ce n'est pas nécessaire.
-   - Modifie uniquement les variables CSS de `css/devine-le-prix.css` (--dlp-primary-color, --dlp-font-family, --dlp-bg-main, --dlp-border-radius) pour mapper les couleurs et la typographie sur la Charte Graphique (DA) de ton application.
-```
+> **Instructions à copier-coller directement dans votre IA (ChatGPT, Claude, Cursor, Antigravity, Gemini) pour intégrer ce jeu dans votre application de Quiz à Code de Salon.**
 
 ---
 
-## 📂 Structure du Kit
+<SYSTEM_PROMPT_INTEGRATION>
 
-```
-devine-le-prix-kit/
-├── assets/
-│   └── products/           # Visuels optimisés des produits (images HD)
-├── data/
-│   └── products.js         # Tableau JSON/JS pur des 50+ produits (id, name, price, img)
-├── css/
-│   └── devine-le-prix.css  # Styles modulaires avec Design Tokens CSS
-├── js/
-│   ├── devine-le-prix-engine.js  # Moteur de jeu autonome (Event-Driven API)
-│   └── audio-manager.js          # Effets sonores Web Audio API (synthétiques, 0 fichier mp3)
-├── index.html              # Démo d'intégration fonctionnelle et complète
-└── README.md               # Le présent guide
-```
+## 🎯 OBJECTIF DE L'AGENT IA
+Tu es un assistant virtuel expert en développement Web. Ton objectif est d'intégrer le jeu **"Devine Le Prix"** (fourni dans ce kit) dans notre application de Quiz existante. 
+
+Notre application utilise un système de salon multijoueur identifié par un **code de salle à 4 caractères** (ex: `ABCD` ou `8F2K`).
 
 ---
 
-## 💻 API du Moteur (`DevineLePrixEngine`)
+## 📁 FICHIERS ET STRUCTURE DU KIT À UTILISER
+- `js/devine-le-prix-engine.js` : Moteur de jeu pur en classe JavaScript (`DevineLePrixEngine`).
+- `data/products.js` : Tableau d'objets des 50+ produits (`id`, `name`, `price`, `img`).
+- `assets/products/` : Dossier contenant l'ensemble des photos HD des produits.
+- `css/devine-le-prix.css` : Feuille de style du jeu avec variables CSS (Design Tokens).
+- `js/audio-manager.js` : Synthétiseur d'effets sonores Web Audio API (sans fichiers MP3).
+- `index.html` : Démo de référence du composant d'affichage.
 
-### Constructeur & Configuration
+---
+
+## ⚙️ INSTRUCTIONS DE BRANCHEMENT TECHNIQUE
+
+### 1. Instanciation du Moteur de Jeu
+Dans le composant ou module de gestion de salon de notre application :
 
 ```javascript
 import { PRODUCTS_DATA } from './data/products.js';
 import { DevineLePrixEngine } from './js/devine-le-prix-engine.js';
 
+// Instancier le moteur avec le code de salle à 4 caractères de notre app
 const engine = new DevineLePrixEngine({
-    roomCode: "4F9B",        // Code de salle à 4 caractères
-    totalRounds: 5,           // Nombre de manches par partie
-    timerDuration: 20,        // Décompte en secondes par manche
-    products: PRODUCTS_DATA   // Tableau des produits à faire deviner
+    roomCode: CURRENT_ROOM_CODE, // Code à 4 caractères de la room actuelle (ex: "4F9B")
+    totalRounds: 5,               // Nombre de manches souhaité
+    timerDuration: 20,            // Durée par manche (secondes)
+    products: PRODUCTS_DATA       // Liste des produits
 });
 ```
 
-### Méthodes Publiques
+### 2. Gestion des Soumissions de Prix (Réseau / WebSockets)
+Lorsque les joueurs envoient leur réponse depuis notre interface ou backend :
 
-| Méthode | Paramètres | Description |
-| :--- | :--- | :--- |
-| `setRoomCode(code)` | `code: string` | Définit ou met à jour le code de salon à 4 caractères. |
-| `startGame()` | Aucun | Mélange le paquet de produits et lance la manche 1. |
-| `nextRound()` | Aucun | Passe à la manche suivante ou termine la partie si le nombre max est atteint. |
-| `submitGuess(playerId, playerName, value)` | `playerId, playerName, value` | Enregistre l'estimation d'un joueur pour la manche en cours. |
-| `revealPrice()` | Aucun | Interrompt le timer, révèle le vrai prix et calcule le score selon l'écart %. |
-| `getState()` | Aucun | Retourne l'objet d'état complet du jeu. |
-| `resetGame()` | Aucun | Réinitialise l'état du jeu. |
+```javascript
+// À la réception de l'estimation d'un joueur
+function handlePlayerGuess(playerId, playerName, guessedPrice) {
+    // Transmettre la saisie au moteur
+    engine.submitGuess(playerId, playerName, parseFloat(guessedPrice));
+}
+```
 
-### Événements (`engine.on(event, callback)`)
+### 3. Synchronisation d'État avec Notre Application
+Écoute l'événement `stateChange` émis par le moteur pour mettre à jour l'UI ou diffuser l'état de la salle à tous les clients connectés :
 
 ```javascript
 engine.on('stateChange', (state) => {
-    // Transmis à chaque changement d'état (timer, soumission, révélation)
-    console.log("Nouvel état de la room:", state);
-});
-
-engine.on('roundStart', (state) => {
-    console.log("Début de manche. Produit à deviner:", state.currentItem.name);
-});
-
-engine.on('timerTick', ({ timeRemaining }) => {
-    console.log("Secondes restantes:", timeRemaining);
-});
-
-engine.on('priceRevealed', ({ actualPrice, results }) => {
-    console.log("Prix réel:", actualPrice, "Résultats des joueurs:", results);
-});
-
-engine.on('gameOver', (finalState) => {
-    console.log("Partie terminée ! Classement final:", finalState.scores);
-});
-```
-
----
-
-## 🔌 Intégration Réseau (WebSockets / Backend Quiz)
-
-### 1. Côté Serveur / Host de la Room
-
-```javascript
-// Quand un joueur envoie sa réponse via WebSocket
-socket.on('SUBMIT_GUESS', (payload) => {
-    // payload = { playerId: "usr_123", playerName: "Alex", guess: 450 }
-    engine.submitGuess(payload.playerId, payload.playerName, payload.guess);
-});
-
-// Écouter les changements d'état du moteur et diffuser à la room
-engine.on('stateChange', (state) => {
-    io.to(state.roomCode).emit('ROOM_STATE_UPDATE', state);
-});
-```
-
-### 2. Côté Client / UI Joueur
-
-```javascript
-// Réception de l'état envoyé par le serveur
-socket.on('ROOM_STATE_UPDATE', (state) => {
-    document.getElementById('room-code').textContent = state.roomCode;
-    document.getElementById('product-title').textContent = state.currentItem.name;
-    document.getElementById('product-img').src = state.currentItem.img;
+    // state contient : roomCode, currentRound, totalRounds, timeRemaining, isRoundActive, isRevealed, currentItem, guesses, scores
     
-    if (state.isRevealed) {
-        document.getElementById('price-display').textContent = state.currentItem.price + " €";
-    }
+    // Diffusion aux clients de la room (ex: WebSockets / State Management)
+    broadcastToRoom(state.roomCode, 'GAME_STATE_UPDATED', state);
+});
+
+// Événement déclenché à la fin du décompte ou de la manche
+engine.on('priceRevealed', ({ actualPrice, results }) => {
+    // actualPrice : Prix réel de l'objet
+    // results : Tableau ordonné des écarts et points attribués aux joueurs
+    showRoundResults(actualPrice, results);
 });
 ```
 
 ---
 
-## 🎨 Adaptation de la Charte Graphique (DA)
+## 🎨 ADAPTATION À NOTRE CHARTE GRAPHIQUE (DESIGN AUTHORITY)
 
-Pour personnaliser l'apparence selon la Direction Artistique de l'application hôte, modifiez les tokens CSS dans votre propre fichier ou au sommet de `css/devine-le-prix.css` :
+Pour que le jeu adopte automatiquement la Direction Artistique (DA) de notre projet, surcharge les variables CSS suivantes avec les tokens de notre Design System :
 
 ```css
 :root {
-    /* Couleurs principales */
-    --dlp-primary-color: #6366f1;   /* Couleur d'action principale */
-    --dlp-primary-hover: #4f46e5;   /* État survol */
-    --dlp-accent-color: #10b981;    /* Couleur de réussite / Prix révélé */
+    /* Adapter avec les couleurs de notre application */
+    --dlp-primary-color: var(--my-app-primary, #6366f1);
+    --dlp-primary-hover: var(--my-app-primary-dark, #4f46e5);
+    --dlp-accent-color: var(--my-app-success, #10b981);
     
-    /* Arrière-plan & Cartes */
-    --dlp-bg-main: #0f172a;         /* Fond d'écran */
-    --dlp-bg-card: #1e293b;         /* Fond des cartes */
-    --dlp-border-color: #334155;     /* Bordures */
-    
-    /* Typographie & Rayon */
-    --dlp-font-family: 'Inter', sans-serif;
-    --dlp-border-radius: 12px;
+    /* Adapter avec les fonds et typographies de notre application */
+    --dlp-bg-main: var(--my-app-bg, #0f172a);
+    --dlp-bg-card: var(--my-app-card-bg, #1e293b);
+    --dlp-font-family: var(--my-app-font, 'Inter', sans-serif);
+    --dlp-border-radius: var(--my-app-radius, 12px);
 }
 ```
 
 ---
 
-## 📋 Données d'un Produit (`data/products.js`)
+## 🚀 ÉTAPES D'INTÉGRATION À RÉALISER PAR L'IA
 
-Chaque objet produit respecte la structure suivante :
+1. Copie les dossiers `assets/products/`, `data/` et `js/devine-le-prix-engine.js` dans notre projet.
+2. Déclare et instancie `DevineLePrixEngine` dans le contrôleur de salon multijoueur.
+3. Raccorde les entrées utilisateurs de notre formulaire de quiz vers `engine.submitGuess()`.
+4. Mappe les variables CSS de `devine-le-prix.css` sur la charte graphique de notre application.
+5. Vérifie que le code de salon à 4 caractères s'affiche correctement dans l'en-tête.
 
-```javascript
-{
-    id: "ps5-pro",
-    name: "PlayStation 5 Pro Digital",
-    price: 799.99,
-    img: "assets/products/playstation_5_pro_digital.jpg",
-    description: "Optionnel : description courte"
-}
-```
+</SYSTEM_PROMPT_INTEGRATION>
