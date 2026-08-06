@@ -1,132 +1,75 @@
-# 🤖 INSTRUCTIONS D'INTÉGRATION IA : JEU "DEVINE LE PRIX"
+# 🤖 PROMPT D'INTÉGRATION AUTOMATIQUE EN 1-CLIC : "DEVINE LE PRIX"
 
-> **Instructions à copier-coller directement dans votre IA (ChatGPT, Claude, Cursor, Antigravity, Gemini) pour intégrer ce jeu dans votre application de Quiz à Code de Salon.**
+> **Instructions à copier-coller intégralement dans votre IA (ChatGPT, Claude, Cursor, Antigravity, Gemini) pour intégrer le jeu en 100% automatique dans votre application de Quiz.**
 
 ---
 
 <SYSTEM_PROMPT_INTEGRATION>
 
-## 🎯 OBJECTIF DE L'AGENT IA
-Tu es un assistant virtuel expert en développement Web. Ton objectif est d'analyser le projet hôte et d'intégrer le jeu **"Devine Le Prix"** (fourni dans ce kit) dans notre application de Quiz existante. 
+# ⚡ PROMPT DE FUSION & D'INTÉGRATION AUTOMATIQUE (ZERO-FRICTION)
 
-Notre application utilise un système de salon multijoueur identifié par un **code de salle à 4 caractères** (ex: `ABCD` ou `8F2K`).
+Tu es un agent IA développeur senior. Ton rôle est d'analyser le projet hôte dans lequel tu te trouves et d'y fusionner intégralement le mini-jeu **"Devine Le Prix"** (fourni dans ce kit).
 
----
-
-## 🎨 DIRECTIVE OBLIGATOIRE : ADAPTATION AUTOMATIQUE DE LA DIRECTION ARTISTIQUE (DA)
-
-> **MANDAT AUTOMATIQUE POUR L'IA D'INTÉGRATION :**
-> Avant d'injecter l'interface du jeu, tu DOIS obligatoirement lire et analyser les fichiers de style du projet hôte (ex: `global.css`, `tailwind.config.js`, variables `:root`, polices Google Fonts, thèmes sombres/clairs).
-> 
-> **Actions automatiques à exécuter :**
-> 1. Détecte la palette de couleurs principale (Primary), secondaire, d'accentuation (Success/Warning), la typographie de titre/corps et les rayons de bordure (`border-radius`) du projet hôte.
-> 2. Mappe automatiquement ces valeurs sur les variables CSS de `css/devine-le-prix.css` (ou convertis-les en classes Tailwind / CSS-in-JS selon le framework utilisé).
-> 3. Ajuste visuellement le composant pour qu'il semble avoir été développé sur-mesure pour l'application hôte, sans aucune rupture visuelle ni incohérence de style.
+L'utilisateur ne doit réaliser aucune manipulation manuelle : tu dois adapter automatiquement l'interface, la Direction Artistique (DA), le système de points et la logique réseau pour qu'ils soient **100% identiques et homogènes** avec le reste de son application de jeu.
 
 ---
 
-## 📁 FICHIERS ET STRUCTURE DU KIT À UTILISER
-- `js/devine-le-prix-engine.js` : Moteur de jeu pur en classe JavaScript (`DevineLePrixEngine`).
-- `data/products.js` : Tableau d'objets des 50+ produits (`id`, `name`, `price`, `img`).
-- `assets/products/` : Dossier contenant l'ensemble des photos HD des produits.
-- `css/devine-le-prix.css` : Feuille de style du jeu avec variables CSS (Design Tokens).
-- `js/audio-manager.js` : Synthétiseur d'effets sonores Web Audio API (sans fichiers MP3).
-- `_TOOLS/` : Scripts Node.js d'automatisation pour générer et télécharger de nouveaux visuels de produits via SerpApi.
-- `index.html` : Démo de référence du composant d'affichage.
+## 📋 ALGORITHME D'INTÉGRATION À EXÉCUTER AUTOMATIQUEMENT
+
+### 1. ANALYSE ET ALIGNEMENT DE LA DIRECTION ARTISTIQUE (DA)
+- **Inspection du Codebase Hôte** : Lis nos composants de jeu existants (cartes de quiz, modales, boutons, jauges de timer, badges).
+- **Extraction du Design System** : Détecte nos classes (TailwindCSS, CSS Modules, Styled Components) ou variables CSS (`:root`), ainsi que nos couleurs et typographies.
+- **Stylisation Homogène** : Re-stylise l'interface de "Devine Le Prix" pour qu'elle utilise **EXACTEMENT** les mêmes composants visuels et règles de style que nos autres jeux. Aucune rupture visuelle ne doit être visible.
+
+### 2. HARMONISATION DU SYSTÈME DE POINTS ET DE SCORE
+- **Inspection de notre Barème** : Analyse comment notre application attribue les points (points fixes, bonus de vitesse, multiplicateurs, classement).
+- **Adaptation de la Formule** : Adapte les points calculés par `DevineLePrixEngine` dans `revealPrice()` pour qu'ils s'alignent **EXACTEMENT** sur la structure de points de notre système de game (ex: convertir l'écart relatif % sur notre barème habituel).
+
+### 3. INTEGRATION AU SALON DE ROOM (CODE À 4 CARACTÈRES) & RÉSEAU
+- **Gestion des Rooms** : Repère notre système de salon multijoueur fonctionnant avec un code à 4 caractères (ex: `ABCD`).
+- **Instanciation du Moteur** : Instancie `DevineLePrixEngine` dans notre contrôleur de salon et passe-lui le code de room de notre app.
+- **Raccordement Réseau** : Connecte les entrées des joueurs à `engine.submitGuess(playerId, playerName, value)` et réémets l'état `engine.on('stateChange')` sur nos canaux WebSockets / Sockets / Firebase / Supabase habituels.
+
+### 4. INJECTION DES DONNÉES PRODUITS & ASSETS
+- Importe la base de données `data/products.js` et copie le dossier d'images `assets/products/` dans l'architecture de notre projet.
 
 ---
 
-## 🛠️ OUTILS ET SCRIPTS D'AUTOMATISATION (`_TOOLS/`)
-
-Le dossier `_TOOLS/` contient des utilitaires Node.js permettant d'étendre facilement la base de produits :
-
-1. **`_TOOLS/fetch_images.js`** :
-   - **Rôle** : Script d'acquisition automatique d'images HD via l'API SerpApi (Google Images / Shopping).
-   - **Utilisation** : `node _TOOLS/fetch_images.js`
-   - **Ajout de nouveaux produits** : Ajouter un objet `{ name: "Nom", query: "Recherche Google", price: 100 }` dans le tableau `products` du script.
-
-2. **`_TOOLS/fetch_missing.js`** :
-   - **Rôle** : Script de secours ciblé pour récupérer des visuels spécifiques haute résolution.
-   - **Utilisation** : `node _TOOLS/fetch_missing.js`
-
----
-
-## ⚙️ INSTRUCTIONS DE BRANCHEMENT TECHNIQUE
-
-### 1. Instanciation du Moteur de Jeu
-Dans le composant ou module de gestion de salon de notre application :
+## 💻 API DE RÉFÉRENCE DU MOTEUR (`DevineLePrixEngine`)
 
 ```javascript
 import { PRODUCTS_DATA } from './data/products.js';
 import { DevineLePrixEngine } from './js/devine-le-prix-engine.js';
 
-// Instancier le moteur avec le code de salle à 4 caractères de notre app
+// Instanciation dans le contrôleur de salon hôte
 const engine = new DevineLePrixEngine({
-    roomCode: CURRENT_ROOM_CODE, // Code à 4 caractères de la room actuelle (ex: "4F9B")
-    totalRounds: 5,               // Nombre de manches souhaité
-    timerDuration: 20,            // Durée par manche (secondes)
-    products: PRODUCTS_DATA       // Liste des produits
-});
-```
-
-### 2. Gestion des Soumissions de Prix (Réseau / WebSockets)
-Lorsque les joueurs envoient leur réponse depuis notre interface ou backend :
-
-```javascript
-// À la réception de l'estimation d'un joueur
-function handlePlayerGuess(playerId, playerName, guessedPrice) {
-    // Transmettre la saisie au moteur
-    engine.submitGuess(playerId, playerName, parseFloat(guessedPrice));
-}
-```
-
-### 3. Synchronisation d'État avec Notre Application
-Écoute l'événement `stateChange` émis par le moteur pour mettre à jour l'UI ou diffuser l'état de la salle à tous les clients connectés :
-
-```javascript
-engine.on('stateChange', (state) => {
-    // state contient : roomCode, currentRound, totalRounds, timeRemaining, isRoundActive, isRevealed, currentItem, guesses, scores
-    
-    // Diffusion aux clients de la room (ex: WebSockets / State Management)
-    broadcastToRoom(state.roomCode, 'GAME_STATE_UPDATED', state);
+    roomCode: CURRENT_ROOM_CODE, // Code à 4 caractères de notre salon
+    totalRounds: 5,               // Nombre de manches
+    timerDuration: 20,            // Temps par manche (s)
+    products: PRODUCTS_DATA       // Données des produits
 });
 
-// Événement déclenché à la fin du décompte ou de la manche
-engine.on('priceRevealed', ({ actualPrice, results }) => {
-    // actualPrice : Prix réel de l'objet
-    // results : Tableau ordonné des écarts et points attribués aux joueurs
-    showRoundResults(actualPrice, results);
-});
+// Écoute des événements du jeu
+engine.on('stateChange', (state) => broadcastToOurRoom(state));
+engine.on('priceRevealed', ({ actualPrice, results }) => handleOurScoring(actualPrice, results));
+
+// Soumission de la réponse d'un joueur
+engine.submitGuess(playerId, playerName, priceValue);
 ```
 
 ---
 
-## 🎨 MAPPAGE DES TOKENS DE DESIGN (ADAPTATION DA)
-
-Exemple de mappage automatique des variables CSS sur le thème de notre projet :
-
-```css
-:root {
-    /* Mappage automatique sur les variables de notre application */
-    --dlp-primary-color: var(--app-primary, #6366f1);
-    --dlp-primary-hover: var(--app-primary-hover, #4f46e5);
-    --dlp-accent-color: var(--app-success, #10b981);
-    
-    --dlp-bg-main: var(--app-background, #0f172a);
-    --dlp-bg-card: var(--app-surface, #1e293b);
-    --dlp-font-family: var(--app-font-family, 'Inter', sans-serif);
-    --dlp-border-radius: var(--app-radius-lg, 12px);
-}
-```
+## 🛠️ OUTILS COMPLÉMENTAIRES (`_TOOLS/`)
+- `_TOOLS/fetch_images.js` : Script Node.js pour ajouter de nouveaux produits et télécharger automatiquement leurs visuels HD via l'API SerpApi / Google Images (`node _TOOLS/fetch_images.js`).
+- `_TOOLS/fetch_missing.js` : Script de secours pour la récupération de visuels haute définition.
 
 ---
 
-## 🚀 ÉTAPES D'INTÉGRATION À RÉALISER PAR L'IA
+## 🚀 ORDRE DES OPÉRATIONS POUR L'IA
 
-1. **Analyse DA** : Lis la charte graphique du projet hôte et mappe la feuille de style du jeu dessus.
-2. **Copie des Fichiers** : Copie les dossiers `assets/products/`, `data/` et `js/devine-le-prix-engine.js` dans le projet.
-3. **Contrôleur de Salon** : Déclare et instancie `DevineLePrixEngine` avec le `roomCode` à 4 caractères.
-4. **Binding Réseau** : Raccorde les soumissions de prix des joueurs vers `engine.submitGuess()`.
-5. **Vérification UI** : Valide l'affichage harmonieux du composant et du code de salle.
+1. Scanne notre projet hôte (UI, DA, système de points, gestion de room).
+2. Intègre et adapte `DevineLePrixEngine` pour qu'il réutilise nos composants UI et notre barème de points.
+3. Branche les entrées/sorties réseau sur les événements du moteur.
+4. Valide le fonctionnement fluide du jeu dans le salon à 4 caractères.
 
 </SYSTEM_PROMPT_INTEGRATION>
